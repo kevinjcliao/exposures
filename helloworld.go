@@ -150,13 +150,41 @@ func handlePositiveCase(ctx context.Context, client *ent.Client, from string) {
 				),
 			).
 			AllX(ctx)
-		fmt.Println("Similar checkins: ", similarCheckins)
+		phoneNumbers := make(map[string]bool)
+		for _, similarCheckin := range similarCheckins {
+			sender := similarCheckin.QuerySender().OnlyX(ctx)
+			phoneNumbers[sender.PhoneNumber] = true
+		}
+		fmt.Println("Also found these phone numbers: ", phoneNumbers)
+		for phone, _ := range phoneNumbers {
+			sendSms(phone, fmt.Sprintf("Informing: %s", phone))
+		}
 	}
 }
 
 // [END Handle Positive Notification].
 
 // [START smsHandler].
+func sendSms(to string, body string) {
+	if mustGetenv("EXPOSURES_ENV") != "PROD" {
+		fmt.Println("Sending an SMS to: ", to, " with body: ", body)
+		fmt.Println("Not actually sending an SMS because you're in test.")
+		return
+	}
+	client := twilio.NewRestClientWithParams(twilio.RestClientParams{
+		Username: mustGetenv("TWILIO_SID"),
+		Password: mustGetenv("TWILIO_API_KEY"),
+	})
+	params := &openapi.CreateMessageParams{}
+	params.SetTo(to)
+	params.SetFrom("+1(417)668-2737")
+	params.SetBody(body)
+	_, err := client.ApiV2010.CreateMessage(params)
+	if err != nil {
+		log.Fatalf("Failed to send sms to: %s containing body: %s", to, body)
+	}
+}
+
 func smsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
@@ -165,20 +193,14 @@ func smsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 		}
 		body := r.Form.Get("Body")
 		from := r.Form.Get("From")
-		client := twilio.NewRestClientWithParams(twilio.RestClientParams{
-			Username: mustGetenv("TWILIO_SID"),
-			Password: mustGetenv("TWILIO_API_KEY"),
-		})
 
 		if body == "POSITIVE" {
 			handlePositiveCase(ctx, entClient, from)
 			return
 		}
-		params := &openapi.CreateMessageParams{}
-		params.SetTo(from)
-		params.SetFrom("+1(417)668-2737")
+
 		rsvpMessage := "Thanks for checking in. You can let your friends/other attendees know if you tested positive by replying POSITIVE."
-		params.SetBody(rsvpMessage)
+		sendSms(from, rsvpMessage)
 		user, err := entClient.User.Query().Where(user.PhoneNumberEQ(from)).Only(ctx)
 		if err != nil {
 			switch err.(type) {
@@ -198,7 +220,6 @@ func smsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 			fmt.Printf("Error creating checkin: %v", err)
 		}
 
-		_, err = client.ApiV2010.CreateMessage(params)
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
