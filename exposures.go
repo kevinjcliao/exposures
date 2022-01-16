@@ -99,6 +99,7 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/", requesthandlers.IndexHandler)
+	router.GET("/event/:uuid", requesthandlers.EventHandler)
 	router.POST(SmsEndpoint(), requesthandlers.SmsHandler(context.Background(), client))
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	// [START setting_port]
