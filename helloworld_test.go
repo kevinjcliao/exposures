@@ -15,6 +15,7 @@
 package main
 
 import (
+	"helloworld/requesthandlers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +28,7 @@ func TestIndexHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(indexHandler)
+	handler := http.HandlerFunc(requesthandlers.IndexHandler)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -35,15 +36,6 @@ func TestIndexHandler(t *testing.T) {
 			"unexpected status: got (%v) want (%v)",
 			status,
 			http.StatusOK,
-		)
-	}
-
-	expected := "Hello, World!"
-	if rr.Body.String() != expected {
-		t.Errorf(
-			"unexpected body: got (%v) want (%v)",
-			rr.Body.String(),
-			"Hello, World!",
 		)
 	}
 }
@@ -55,7 +47,7 @@ func TestIndexHandlerNotFound(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(indexHandler)
+	handler := http.HandlerFunc(requesthandlers.IndexHandler)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
