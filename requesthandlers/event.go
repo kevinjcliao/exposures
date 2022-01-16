@@ -13,7 +13,6 @@ func EventHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	t := template.Must(template.ParseFiles("templates/index.html"))
 	id := ps.ByName("uuid")
 
-	log.Printf("UUID: %s", id)
 	if _, err := uuid.Parse(id); err != nil {
 		t = template.Must(template.ParseFiles("templates/404.html"))
 		t.Execute(w, IndexData{Uuid: id})

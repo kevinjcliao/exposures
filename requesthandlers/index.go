@@ -2,7 +2,6 @@ package requesthandlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -19,6 +18,5 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		http.NotFound(w, r)
 		return
 	}
-	log.Println("Redirecting.")
 	http.Redirect(w, r, fmt.Sprintf("/event/%s", uuid.New().String()), http.StatusMovedPermanently)
 }

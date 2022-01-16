@@ -34,31 +34,11 @@ func TestIndexHandler(t *testing.T) {
 	router.GET("/", requesthandlers.IndexHandler)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
+	if status := rr.Code; status != http.StatusMovedPermanently {
 		t.Errorf(
 			"unexpected status: got (%v) want (%v)",
 			status,
 			http.StatusOK,
-		)
-	}
-}
-
-func TestIndexHandlerNotFound(t *testing.T) {
-	req, err := http.NewRequest("GET", "/404", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	router := httprouter.New()
-	router.GET("/", requesthandlers.IndexHandler)
-	router.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusNotFound {
-		t.Errorf(
-			"unexpected status: got (%v) want (%v)",
-			status,
-			http.StatusNotFound,
 		)
 	}
 }
