@@ -23,6 +23,7 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3" // Import go-sqlite3 library
 	twilio "github.com/twilio/twilio-go"
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
@@ -42,38 +43,37 @@ func mustGetenv(k string) string {
 
 func initSocketConnectionPool() (*sql.DB, error) {
 	var (
-		dbUser                 = mustGetenv("DB_USER") // e.g. 'my-db-user'
-		dbPwd                  = mustGetenv("DB_PASS") // e.g. 'my-db-password'
-		instanceConnectionName = mustGetenv(
-			"INSTANCE_CONNECTION_NAME",
-		) // e.g. 'project:region:instance'
-		dbName    = mustGetenv("DB_NAME") // e.g. 'my-database'
-		env       = mustGetenv("EXPOSURES_ENV")
-		socketDir = "/cloudsql"
+		dbUser = mustGetenv("DB_USER") // e.g. 'my-db-user'
+		dbPwd  = mustGetenv("DB_PASS") // e.g. 'my-db-password'
+		dbName = mustGetenv("DB_NAME") // e.g. 'my-database'
+		dbHost = mustGetenv("DB_HOST")
+		dbPort = mustGetenv("DB_PORT")
+		env    = mustGetenv("EXPOSURES_ENV")
 	)
 
 	var dbURI string
 	if env == "TEST" {
-		dbTCPHost := "34.134.62.245"
-		dbPort := "5432"
-		dbURI = fmt.Sprintf(
-			"host=%s user=%s password=%s port=%s database=%s",
-			dbTCPHost,
-			dbUser,
-			dbPwd,
-			dbPort,
-			dbName,
-		)
-	} else {
-		dbURI = fmt.Sprintf(
-			"user=%s password=%s database=%s host=%s/%s",
-			dbUser,
-			dbPwd,
-			dbName,
-			socketDir,
-			instanceConnectionName,
-		)
+		file, err := os.Create("sqlite-database.db")
+		if err != nil {
+			log.Fatalf("Failed creating db: %v", err.Error())
+		}
+		file.Close()
+		log.Println("Created SQLite Database for test.")
+		sqldb, err := sql.Open("sqlite3", "./sqlite-database.db?_foreign_keys=ON")
+		if err != nil {
+			log.Fatalf("Failed initiating db connection: %v", err.Error())
+		}
+		return sqldb, err
 	}
+	dbURI = fmt.Sprintf(
+		"user=%s password=%s database=%s host=%s port=%s sslmode=require",
+		dbUser,
+		dbPwd,
+		dbName,
+		dbHost,
+		dbPort,
+	)
+
 	// dbPool is the pool of database connections.
 	dbPool, err := sql.Open("pgx", dbURI)
 
@@ -81,6 +81,7 @@ func initSocketConnectionPool() (*sql.DB, error) {
 }
 
 func main() {
+	var env = mustGetenv("EXPOSURES_ENV")
 	db, err := initSocketConnectionPool()
 	if err != nil {
 		log.Fatalf("sql.Open: %v", err)
@@ -88,7 +89,11 @@ func main() {
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
 	db.SetConnMaxLifetime(time.Hour)
-	drv := entsql.OpenDB(dialect.Postgres, db)
+	dl := dialect.Postgres
+	if env == "TEST" {
+		dl = dialect.SQLite
+	}
+	drv := entsql.OpenDB(dl, db)
 
 	client := ent.NewClient(ent.Driver(drv))
 	if err != nil {
@@ -126,6 +131,7 @@ func main() {
 
 // [START Handle Positive Notification].
 func handlePositiveCase(ctx context.Context, client *ent.Client, from string) {
+	sendSms(from, "Thanks for letting us know. Please take care of yourself and those around you. We hope you recover soon.")
 	fourteenDaysAgo := time.Now().Unix() - (14 * 24 * 60 * 60)
 	threeHours := int64(3 * 60 * 60)
 	checkins := client.Checkin.Query().
@@ -155,9 +161,10 @@ func handlePositiveCase(ctx context.Context, client *ent.Client, from string) {
 			sender := similarCheckin.QuerySender().OnlyX(ctx)
 			phoneNumbers[sender.PhoneNumber] = true
 		}
-		fmt.Println("Also found these phone numbers: ", phoneNumbers)
 		for phone, _ := range phoneNumbers {
-			sendSms(phone, fmt.Sprintf("Informing: %s", phone))
+			date := time.Unix(positiveCheckin.CheckinTime, 0)
+			body := fmt.Sprintf("Someone at an event you attended on: %s tested positive for COVID-19. You should get tested.", date)
+			sendSms(phone, body)
 		}
 	}
 }
@@ -167,8 +174,8 @@ func handlePositiveCase(ctx context.Context, client *ent.Client, from string) {
 // [START smsHandler].
 func sendSms(to string, body string) {
 	if mustGetenv("EXPOSURES_ENV") != "PROD" {
-		fmt.Println("Sending an SMS to: ", to, " with body: ", body)
-		fmt.Println("Not actually sending an SMS because you're in test.")
+		log.Println("Sending an SMS to: ", to, " with body: ", body)
+		log.Println("Not actually sending an SMS because you're in test.")
 		return
 	}
 	client := twilio.NewRestClientWithParams(twilio.RestClientParams{
@@ -208,7 +215,7 @@ func smsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 				user = entClient.User.Create().SetPhoneNumber(from).SaveX(ctx)
 
 			default:
-				fmt.Println("Huh")
+				log.Println("Huh")
 			}
 		}
 		_, err = entClient.Checkin.Create().
@@ -217,13 +224,13 @@ func smsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 			SetSender(user).
 			Save(ctx)
 		if err != nil {
-			fmt.Printf("Error creating checkin: %v", err)
+			log.Printf("Error creating checkin: %v", err)
 		}
 
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 		} else {
-			fmt.Println("SMS Sent Successfully!")
+			log.Println("SMS Sent Successfully!")
 		}
 	}
 }

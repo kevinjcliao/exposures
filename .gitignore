@@ -2,3 +2,4 @@ app.yaml
 .env_vars
 helloworld
 test.sh
+sqlite-database.db
