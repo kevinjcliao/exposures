@@ -15,31 +15,11 @@
 package main
 
 import (
-	"context"
-	"exposures/ent"
-	"exposures/messages"
 	"exposures/requesthandlers"
-	"exposures/smshandler"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"entgo.io/ent/dialect"
 )
-
-func setupTestWithEntClient(t *testing.T) (*ent.Client, context.Context) {
-	// Create an ent.Client with in-memory SQLite database.
-	client, err := ent.Open(dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
-	if err != nil {
-		t.Fatalf("failed opening connection to sqlite: %v", err)
-	}
-	ctx := context.Background()
-	// Run the automatic migration tool to create all schema resources.
-	if err := client.Schema.Create(ctx); err != nil {
-		t.Fatalf("failed creating schema resources: %v", err)
-	}
-	return client, ctx
-}
 
 func TestIndexHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
@@ -76,103 +56,5 @@ func TestIndexHandlerNotFound(t *testing.T) {
 			status,
 			http.StatusNotFound,
 		)
-	}
-}
-
-func TestRsvp(t *testing.T) {
-	client, ctx := setupTestWithEntClient(t)
-	defer client.Close()
-
-	sampleCode := "205202ac-c4e6-48ed-b469-9b3bcf592316"
-	ms := smshandler.Rsvp(ctx, client, "+1(123)456-7890", sampleCode)
-	if len(ms) != 1 {
-		t.Errorf(
-			"Expected RSVP to send 1 message. Sent %v.", ms,
-		)
-	}
-
-	if ms[0].Type != messages.RsvpSuccess {
-		t.Errorf(
-			"Expected RSVP message, but actually got: %v", ms,
-		)
-	}
-
-	users := client.User.Query().AllX(ctx)
-
-	if len(users) != 1 {
-		t.Errorf(
-			"Expected 1 user to be created and persisted to DB, but actually got: %v", len(users),
-		)
-	}
-}
-
-func TestHandlePositiveCase(t *testing.T) {
-	client, ctx := setupTestWithEntClient(t)
-	defer client.Close()
-
-	user1 := "+1(123)456-7890"
-	user2 := "+1(234)567-8901"
-	user3 := "+1(345)678-9012"
-	sampleCode := "205202ac-c4e6-48ed-b469-9b3bcf592316"
-	smshandler.Rsvp(ctx, client, user1, sampleCode)
-	smshandler.Rsvp(ctx, client, user2, sampleCode)
-	smshandler.Rsvp(ctx, client, user3, sampleCode)
-
-	ms := smshandler.HandlePositiveCase(ctx, client, user1)
-	if len(ms) != 3 {
-		t.Fatalf("Expected 3 messages to be sent. Got: %v", len(ms))
-	}
-
-	for _, m := range ms {
-		if m.Recipient == user1 && m.Type != messages.ThankForSelfReporting {
-			t.Fatalf("Expected to thank user 1 for reporting. Found this message instead: %v", ms)
-		}
-
-		if m.Recipient == user2 && m.Type != messages.NotifyPositiveCase {
-			t.Fatalf("Expected to notify user 2. Sent this message instead: %v", ms)
-		}
-
-		if m.Recipient == user3 && m.Type != messages.NotifyPositiveCase {
-			t.Fatalf("Expected to notify user 3. Sent this message instead: %v", ms)
-		}
-	}
-
-	users := client.User.Query().AllX(ctx)
-	if len(users) != 3 {
-		t.Errorf("Expected 3 users to be created and persisted. Found: %v", len(users))
-	}
-}
-
-func TestOnlyNotifyForCorrectCases(t *testing.T) {
-	client, ctx := setupTestWithEntClient(t)
-	defer client.Close()
-
-	user1 := "+1(123)456-7890"
-	user2 := "+1(234)567-8901"
-	user3 := "+1(345)678-9012"
-	sampleCode := "205202ac-c4e6-48ed-b469-9b3bcf592316"
-	sampleCode2 := "e3fe8a5d-97ec-402b-99a0-04c04822aad2"
-	smshandler.Rsvp(ctx, client, user1, sampleCode)
-	smshandler.Rsvp(ctx, client, user2, sampleCode)
-	smshandler.Rsvp(ctx, client, user3, sampleCode2)
-
-	ms := smshandler.HandlePositiveCase(ctx, client, user1)
-
-	for _, m := range ms {
-		if m.Recipient == user3 {
-			t.Fatalf("User 3 should not be exposed.")
-		}
-
-	}
-
-	ms = smshandler.HandlePositiveCase(ctx, client, user2)
-	for _, m := range ms {
-		if m.Recipient == user1 && m.Type != messages.NotifyPositiveCase {
-			t.Fatalf("User 1 should get a positive case notification.")
-		}
-
-		if m.Recipient == user2 && m.Type != messages.ThankForSelfReporting {
-			t.Fatalf("User2 should be thanked for self-reporting.")
-		}
 	}
 }
