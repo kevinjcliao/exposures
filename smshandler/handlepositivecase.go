@@ -45,7 +45,7 @@ func HandlePositiveCase(ctx context.Context, client *ent.Client, from string) []
 		}
 		for phone := range phoneNumbers {
 			loc, _ := time.LoadLocation("America/Los_Angeles")
-			date := time.Unix(positiveCheckin.CheckinTime, 0).In(loc).Format("2002 Jan 06 15:04 PST")
+			date := time.Unix(positiveCheckin.CheckinTime, 0).In(loc).Format("Mon, 02 Jan 2006 15:04:05 MST")
 			body := fmt.Sprintf("Someone at an event you attended on: %s reported testing positive for COVID-19. You should get tested.", date)
 
 			results = append(results, messages.Message{
