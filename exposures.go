@@ -68,7 +68,7 @@ func initSocketConnectionPool() (*sql.DB, error) {
 }
 
 func SmsEndpoint() string {
-	return "/zHwTHvytNXpesVFJwhtDuaFKyeFwLNaA"
+	return env.MustGetenv("SMS_ENDPOINT")
 }
 
 func main() {
