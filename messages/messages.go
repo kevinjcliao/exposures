@@ -6,6 +6,7 @@ const (
 	RsvpSuccess MessageType = iota
 	NotifyPositiveCase
 	ThankForSelfReporting
+	Error
 )
 
 type Message struct {

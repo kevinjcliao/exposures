@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -25,8 +26,10 @@ func SmsHandler(ctx context.Context, entClient *ent.Client) func(w http.Response
 		result := []messages.Message{}
 		if strings.ToUpper(body) == "POSITIVE" {
 			result = append(result, smshandler.HandlePositiveCase(ctx, entClient, from)...)
-		} else {
+		} else if _, err := uuid.Parse(body); err == nil {
 			result = append(result, smshandler.Rsvp(ctx, entClient, from, body)...)
+		} else {
+			result = append(result, smshandler.Error(ctx, entClient, from))
 		}
 		for _, x := range result {
 			twilio.SendSms(x.Recipient, x.Message)
