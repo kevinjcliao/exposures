@@ -26,6 +26,9 @@
     }
     </style>
 </head>
+<script>
+  window.history.pushState({}, '', '/event/{{ .Uuid }}')
+</script>
 <body>
 
   <h1>☺️ Gather Safe</h1>
@@ -52,7 +55,7 @@
     <p>Stay safe. Take care of each other. This too, shall pass. Kyrie Eleison.</p>
     <p>
       Created in 2021 by
-      <a href="http://liaokev.in">Kevin Liao</a>. Licensed under the <a href="https://anticapitalist.software">Anti-Capitalist Software License</a></p>
+      <a href="http://liaokev.in">Kevin Liao</a>. Licensed under the MIT License. Please be kind and don't abuse this system. I'm paying for the hosting and SMS sending costs out-of-pocket. Abusing it wouldn't be very cash money of you.</p>
   </footer>
 <script type="text/javascript">
 new QRCode(document.getElementById("qrcode"), "SMSTO:+14176682737:{{ .Uuid }}");
