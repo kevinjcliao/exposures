@@ -43,7 +43,7 @@ func HandlePositiveCase(ctx context.Context, client *ent.Client, from string) []
 			sender := similarCheckin.QuerySender().OnlyX(ctx)
 			phoneNumbers[sender.PhoneNumber] = true
 		}
-		for phone, _ := range phoneNumbers {
+		for phone := range phoneNumbers {
 			date := time.Unix(positiveCheckin.CheckinTime, 0)
 			body := fmt.Sprintf("Someone at an event you attended on: %s tested positive for COVID-19. You should get tested.", date)
 
