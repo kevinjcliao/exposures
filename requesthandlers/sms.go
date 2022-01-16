@@ -8,6 +8,7 @@ import (
 	"exposures/twilio"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func SmsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
@@ -20,7 +21,7 @@ func SmsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
 		from := r.Form.Get("From")
 
 		result := []messages.Message{}
-		if body == "POSITIVE" {
+		if strings.ToUpper(body) == "POSITIVE" {
 			result = append(result, smshandler.HandlePositiveCase(ctx, entClient, from)...)
 		} else {
 			result = append(result, smshandler.Rsvp(ctx, entClient, from, body)...)

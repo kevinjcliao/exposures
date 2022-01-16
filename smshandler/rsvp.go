@@ -15,7 +15,6 @@ func Rsvp(ctx context.Context, client *ent.Client, from string, body string) []m
 		switch err.(type) {
 		case *ent.NotFoundError:
 			user = client.User.Create().SetPhoneNumber(from).SaveX(ctx)
-
 		default:
 			log.Println("Huh")
 		}

@@ -96,10 +96,6 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	users := client.User.Query().AllX(context.Background())
-	checkins := client.Checkin.Query().AllX(context.Background())
-	log.Printf("Started exposures with these users: %s and these checkins: %s", users, checkins)
-
 	http.HandleFunc("/", requesthandlers.IndexHandler)
 	http.HandleFunc(SmsEndpoint(), requesthandlers.SmsHandler(context.Background(), client))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

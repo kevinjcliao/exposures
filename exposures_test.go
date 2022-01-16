@@ -136,4 +136,9 @@ func TestHandlePositiveCase(t *testing.T) {
 			t.Fatalf("Expected to notify user 3. Sent this message instead: %v", ms)
 		}
 	}
+
+	users := client.User.Query().AllX(ctx)
+	if len(users) != 3 {
+		t.Errorf("Expected 3 users to be created and persisted. Found: %v", len(users))
+	}
 }
