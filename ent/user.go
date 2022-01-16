@@ -3,8 +3,8 @@
 package ent
 
 import (
+	"exposures/ent/user"
 	"fmt"
-	"helloworld/ent/user"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"

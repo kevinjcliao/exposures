@@ -3,7 +3,7 @@ package twilio
 import (
 	"log"
 
-	"helloworld/env"
+	"exposures/env"
 
 	"github.com/twilio/twilio-go"
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"

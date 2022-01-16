@@ -4,9 +4,9 @@ package ent
 
 import (
 	"context"
+	"exposures/ent/checkin"
+	"exposures/ent/predicate"
 	"fmt"
-	"helloworld/ent/checkin"
-	"helloworld/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

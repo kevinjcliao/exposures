@@ -5,9 +5,9 @@ package ent
 import (
 	"context"
 	"errors"
+	"exposures/ent/checkin"
+	"exposures/ent/user"
 	"fmt"
-	"helloworld/ent/checkin"
-	"helloworld/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

@@ -15,7 +15,7 @@
 package main
 
 import (
-	"helloworld/requesthandlers"
+	"exposures/requesthandlers"
 	"net/http"
 	"net/http/httptest"
 	"testing"

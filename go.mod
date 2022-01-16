@@ -1,4 +1,4 @@
-module helloworld
+module exposures
 
 go 1.11
 

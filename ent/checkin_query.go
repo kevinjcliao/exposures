@@ -5,10 +5,10 @@ package ent
 import (
 	"context"
 	"errors"
+	"exposures/ent/checkin"
+	"exposures/ent/predicate"
+	"exposures/ent/user"
 	"fmt"
-	"helloworld/ent/checkin"
-	"helloworld/ent/predicate"
-	"helloworld/ent/user"
 	"math"
 
 	"entgo.io/ent/dialect/sql"

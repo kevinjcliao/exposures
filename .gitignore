@@ -1,5 +1,5 @@
 app.yaml
 .env_vars
-helloworld
+exposures
 test.sh
 sqlite-database.db

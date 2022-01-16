@@ -4,8 +4,8 @@ package hook
 
 import (
 	"context"
+	"exposures/ent"
 	"fmt"
-	"helloworld/ent"
 )
 
 // The CheckinFunc type is an adapter to allow the use of ordinary

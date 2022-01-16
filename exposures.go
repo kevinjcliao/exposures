@@ -1,17 +1,17 @@
 // [START gae_go111_app]
 
-// Sample helloworld is an App Engine app.
+// Sample exposures is an App Engine app.
 package main
 
 // [START import].
 import (
 	"context"
 	"database/sql"
+	"exposures/ent"
+	"exposures/ent/migrate"
+	"exposures/env"
+	"exposures/requesthandlers"
 	"fmt"
-	"helloworld/ent"
-	"helloworld/ent/migrate"
-	"helloworld/env"
-	"helloworld/requesthandlers"
 	"log"
 	"net/http"
 	"os"

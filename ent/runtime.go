@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"helloworld/ent/checkin"
-	"helloworld/ent/schema"
+	"exposures/ent/checkin"
+	"exposures/ent/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

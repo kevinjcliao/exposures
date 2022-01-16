@@ -3,9 +3,9 @@
 package ent
 
 import (
+	"exposures/ent/checkin"
+	"exposures/ent/user"
 	"fmt"
-	"helloworld/ent/checkin"
-	"helloworld/ent/user"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"

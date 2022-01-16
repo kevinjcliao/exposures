@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 
-	"helloworld/ent/migrate"
+	"exposures/ent/migrate"
 
-	"helloworld/ent/checkin"
-	"helloworld/ent/user"
+	"exposures/ent/checkin"
+	"exposures/ent/user"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
