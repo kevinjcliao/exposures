@@ -1,9 +1,12 @@
 package schema
 
 import (
+	"errors"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Checkin holds the schema definition for the Checkin entity.
@@ -17,7 +20,12 @@ func (Checkin) Fields() []ent.Field {
 		field.Int64("checkin_time").
 			Positive(),
 		field.String("event_id").
-			MinLen(10),
+			Validate(func(eventName string) error {
+				if _, err := uuid.Parse(eventName); err != nil {
+					return errors.New("event name is not well-formed UUID")
+				}
+				return nil
+			}),
 	}
 }
 

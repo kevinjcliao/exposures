@@ -19,6 +19,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func TestIndexHandler(t *testing.T) {
@@ -28,8 +30,9 @@ func TestIndexHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(requesthandlers.IndexHandler)
-	handler.ServeHTTP(rr, req)
+	router := httprouter.New()
+	router.GET("/", requesthandlers.IndexHandler)
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf(
@@ -47,8 +50,9 @@ func TestIndexHandlerNotFound(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(requesthandlers.IndexHandler)
-	handler.ServeHTTP(rr, req)
+	router := httprouter.New()
+	router.GET("/", requesthandlers.IndexHandler)
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf(
