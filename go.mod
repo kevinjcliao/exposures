@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.14.1
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -9,10 +9,12 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/julienschmidt/httprouter"
 )
 
-func SmsHandler(ctx context.Context, entClient *ent.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func SmsHandler(ctx context.Context, entClient *ent.Client) func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		err := r.ParseForm()
 		if err != nil {
 			log.Printf("Failed to parse request.")

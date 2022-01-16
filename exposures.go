@@ -20,6 +20,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3" // Import go-sqlite3 library
 )
@@ -96,9 +97,10 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	http.HandleFunc("/", requesthandlers.IndexHandler)
-	http.HandleFunc(SmsEndpoint(), requesthandlers.SmsHandler(context.Background(), client))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	router := httprouter.New()
+	router.GET("/", requesthandlers.IndexHandler)
+	router.POST(SmsEndpoint(), requesthandlers.SmsHandler(context.Background(), client))
+	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	// [START setting_port]
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -107,7 +109,7 @@ func main() {
 	}
 
 	log.Printf("Listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatal(err)
 	}
 	// [END setting_port]
