@@ -29,7 +29,7 @@ func SmsHandler(ctx context.Context, entClient *ent.Client) func(w http.Response
 		} else if _, err := uuid.Parse(body); err == nil {
 			result = append(result, smshandler.Rsvp(ctx, entClient, from, body)...)
 		} else {
-			result = append(result, smshandler.Error(ctx, entClient, from))
+			result = append(result, smshandler.Error(ctx, entClient, from, body)...)
 		}
 		for _, x := range result {
 			twilio.SendSms(x.Recipient, x.Message)

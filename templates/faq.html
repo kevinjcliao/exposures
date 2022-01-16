@@ -1,0 +1,69 @@
+<!doctype html>
+
+<html>
+<head>
+  <title>💙 Gather Safe</title>
+  <script src="/static/qrcode.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Merriweather+Sans:wght@800&display=swap');
+    </style> 
+  <style type="text/css">
+    body{
+      margin:40px auto;
+      max-width:650px;
+      line-height:1.6;
+      font-size:18px;
+      padding:0 10px;
+      font-family:'Merriweather', serif;
+    }
+    h1,h2,h3{
+      font-family:'Merriweather Sans', sans-serif;
+      line-height:1.2;
+      font-weight:800px;
+    }
+    footer {
+      font-size: 14px;
+    }
+    </style>
+</head>
+<body>
+  <h1>FAQ</h1>
+  <h2>How is close-contact defined?</h2>
+  <p>
+    We will notify you if someone who told us they test positive scanned the same QR code within three hours of you. This is imperfect.
+  </p>
+
+  <h2>How is my data stored?</h2>
+  <ul>
+    <li>I use Google App Engine, and store the ID that identifies each event alongside the phone number.</li>
+    <li>I'm going to implement a job to scrub all data after 14 days.</li>
+  </ul>
+  <h2>Why does this exist? </h2>
+  <p>Getting COVID sucks. Even worse still, it's really hard to phone up or contact people you care about
+    telling them that you've gotten it. Even though there shouldn't be, there is a certain stigma attached to
+    getting COVID. We live in a pandemic, but somehow when we get sick as individuals, it must be because we did something wrong
+    individually that wrought this disease upon us. This is bad both because it is crippling to our emotional
+    wellbeing, but also because it is terrible for public health. 
+  </p>
+  <p>
+    By making it so that the process for notifying people you tested positive is more frictionless and anonymous,
+    we hope to make it less anxiety-inducing to report a positive case. You have enough to worry about if you test positive. 
+  </p>
+  <h2>What was this inspired by?</h2>
+  <p>
+    In large part, this website is a simple, hacky clone of the National SMS Contact Tracing System currently
+    used in Taiwan, except on a much smaller scale, between friends.
+  </p>
+
+  <footer>
+    <p>Stay safe. Take care of each other. This too, shall pass. Kyrie Eleison.</p>
+    <p>
+      Created in 2021 by
+      <a href="http://liaokev.in">Kevin Liao</a>. Licensed under the <a href="https://anticapitalist.software">Anti-Capitalist Software License</a></p>
+  </footer>
+<script type="text/javascript">
+new QRCode(document.getElementById("qrcode"), "SMSTO:+14176682737:{{ .Uuid }}");
+</script>
+
+</body>
+</html>
