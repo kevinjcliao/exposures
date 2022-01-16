@@ -4,13 +4,12 @@ type MessageType int
 
 const (
 	RsvpSuccess MessageType = iota
+	NotifyPositiveCase
+	ThankForSelfReporting
 )
 
-type message struct {
-	recipient string
-	message   MessageType
-}
-
-var MessageBodies = map[MessageType]string{
-	RsvpSuccess: "Thanks for checking in. You can let your friends/other attendees know if you tested positive by replying POSITIVE.",
+type Message struct {
+	Recipient string
+	Type      MessageType
+	Message   string
 }
